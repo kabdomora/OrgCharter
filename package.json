@@ -1,0 +1,28 @@
+{
+  "name": "orgcharter",
+  "version": "1.0.0",
+  "description": "employee-and-dept-tracker",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kabdomora/OrgCharter.git"
+  },
+  "keywords": [
+    "org",
+    "chart",
+    "employee",
+    "department",
+    "business",
+    "role"
+  ],
+  "author": "Kayla Brown kaylabrown@mednet.ucla.edu GitHub: kabdomora",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kabdomora/OrgCharter/issues"
+  },
+  "homepage": "https://github.com/kabdomora/OrgCharter#readme"
+}
