@@ -12,7 +12,7 @@ CREATE TABLE jobs (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(30) UNIQUE NOT NULL,
     salary INT NOT NULL,
-    dept_name VARCHAR(30),
+    dept INT,
     FOREIGN KEY (dept_name) REFERENCES departments(id) ON DELETE SET NULL        
 );
 
@@ -20,12 +20,10 @@ CREATE TABLE people (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(30) NOT NULL,
     last_name VARCHAR(30) NOT NULL,
-    manager VARCHAR(30),
+    manager INT,
     FOREIGN KEY (manager) REFERENCES people(id) ON DELETE SET NULL
-    title VARCHAR(30),
-    FOREIGN KEY (title) REFERENCES jobs(id) ON DELETE CASCADE
-    dept_name VARCHAR(30),
+    title_pay INT,
+    FOREIGN KEY (title_pay) REFERENCES jobs(id) ON DELETE CASCADE
+    dept_name INT,
     FOREIGN KEY (dept_name) REFERENCES departments(id) ON DELETE CASCADE
-    salary INT,
-    FOREIGN KEY (salary) REFERENCES jobs(id) ON DELETE SET NULL
 );
