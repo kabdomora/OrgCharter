@@ -13,7 +13,7 @@ CREATE TABLE jobs (
     title VARCHAR(30) UNIQUE NOT NULL,
     salary INT NOT NULL,
     dept INT,
-    FOREIGN KEY (dept_name) REFERENCES departments(id) ON DELETE SET NULL        
+    FOREIGN KEY (dept) REFERENCES departments(id) ON DELETE SET NULL        
 );
 
 CREATE TABLE people (
