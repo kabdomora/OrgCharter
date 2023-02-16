@@ -21,9 +21,9 @@ CREATE TABLE people (
     first_name VARCHAR(30) NOT NULL,
     last_name VARCHAR(30) NOT NULL,
     manager INT,
-    FOREIGN KEY (manager) REFERENCES people(id) ON DELETE SET NULL
+    FOREIGN KEY (manager) REFERENCES people(id) ON DELETE SET NULL,
     title_pay INT,
-    FOREIGN KEY (title_pay) REFERENCES jobs(id) ON DELETE CASCADE
-    dept_name INT,
-    FOREIGN KEY (dept_name) REFERENCES departments(id) ON DELETE CASCADE
+    FOREIGN KEY (title_pay) REFERENCES jobs(id) ON DELETE CASCADE,
+    dept_id INT,
+    FOREIGN KEY (dept_id) REFERENCES departments(id) ON DELETE CASCADE
 );
