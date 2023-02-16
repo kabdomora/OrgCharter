@@ -1,4 +1,4 @@
-const inquirer = require('inquirer ');
+const inquirer = require('inquirer');
 const connection = require('./db/connection');
 const cTable = require('console.table');
 
@@ -210,3 +210,21 @@ const uperson = [
     },
 ];
 
+// JOIN Example
+// SELECT
+//   favorite_books.book_name AS name, book_prices.price AS price
+// FROM favorite_books
+// JOIN book_prices ON favorite_books.book_price = book_prices.id;
+
+// translated: find the book_name and rename the column name ALSO the price and rename it price
+// from the table favorite_books
+// to pull in the price value instead JOIN the tables book_prices at the related field book_price by using the id saved for the lookup
+
+function init() {
+    inquirer.prompt(action)
+    .then(chosen => {
+        console.log(chosen.action);
+    })
+}
+
+init();
