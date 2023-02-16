@@ -33,40 +33,58 @@ const personStore = [
     // query already stored persons. output comma delimeted list of employee-ids
 ];
 
+const actions =  [
+        'View all Departments',
+        // no additional prompt needed. SQL command
+        'Add a New Department',
+        // launch department array prompt
+        'Delete an Existing Department',
+        // launch department array prompt + okdelete array prompt
+        'View all Positions',
+        // no additional prompt needed. SQL command
+        'Add a New Position',
+        // launch job array prompt
+        'Delete an Existing Position',
+        // launch jobless array prompt + okdelete array prompt
+        'View all Employees',
+        // no additional prompt needed. SQL command
+        'Add a New Employee',
+        // launch person array prompt
+        'Update an Existing Employee',
+        // launch uperson array prompt
+        'Delete an Existing Employee',
+        // launch personless array prompt + okdelete array prompt
+        'View Employees by Manager',
+        // no additional prompt needed. SQL command
+        'View Employees by Department',
+        // no additional prompt needed. SQL command
+        'View Salary Liability by Department'
+        // no additional prompt needed. SQL command
+    ];
+
 const action = [
     {
         type: 'rawlist',
         name: 'action',
-        choices: [
-            'View all Departments',
-            // no additional prompt needed. SQL command
-            'Add a New Department',
-            // launch department array prompt
-            'Delete an Existing Department',
-            // launch department array prompt + okdelete array prompt
-            'View all Positions',
-            // no additional prompt needed. SQL command
-            'Add a New Position',
-            // launch job array prompt
-            'Delete an Existing Position',
-            // launch jobless array prompt + okdelete array prompt
-            'View all Employees',
-            // no additional prompt needed. SQL command
-            'Add a New Employee',
-            // launch person array prompt
-            'Update an Existing Employee',
-            // launch uperson array prompt
-            'Delete an Existing Employee',
-            // launch personless array prompt + okdelete array prompt
-            'View Employees by Manager',
-            // no additional prompt needed. SQL command
-            'View Employees by Department',
-            // no additional prompt needed. SQL command
-            'View Salary Liability by Department'
-            // no additional prompt needed. SQL command
-        ],
+        choices: actions,
         message: 'Select from the following actions:'
-    }
+    },
+];
+
+const another = [
+    {
+        type: 'confirm',
+        name: 'next_action',
+        message: 'Would you like to do something else?',
+        default: 'true'
+    },
+    {
+        type: 'rawlist',
+        name: 'action',
+        choices: actions,
+        message: 'Select from the following actions:',
+        when: (confirm) => confirm.next_action === true
+    },
 ];
 
 const okdelete = [
@@ -224,7 +242,107 @@ function init() {
     inquirer.prompt(action)
     .then(chosen => {
         console.log(chosen.action);
+        let choice = chosen.action;
+        if(choice === 'View all Departments') {
+            viewDepartments(choice);
+            nextAction();
+        } else if(choice === 'Add a New Department') {
+            addDepartment(choice);
+            nextAction();
+        } else if(choice === 'Delete an Existing Department') {
+            deleteDepartment(choice);
+            nextAction();
+        } else if(choice === 'View all Positions') {
+            viewJobs(choice);
+            nextAction();
+        } else if(choice === 'Add a New Position') {
+            addJob(choice);
+            nextAction();
+        } else if(choice === 'Delete an Existing Position') {
+            deleteJob(choice);
+            nextAction();
+        } else if(choice === 'View all Employees') {
+            viewEmployees(choice);
+            nextAction();
+        } else if(choice === 'Add a New Employee') {
+            addEmployee(choice);
+            nextAction();
+        } else if(choice === 'Update an Existing Employee') {
+            updateEmployee(choice);
+            nextAction();
+        } else if(choice === 'Delete an Existing Employee') {
+            deleteEmployee(choice);
+            nextAction();
+        } else if(choice === 'View Employees by Manager') {
+            viewBman(choice);
+            nextAction();
+        } else if(choice === 'View Employees by Department') {
+            viewBdept(choice);
+            nextAction();
+        } else if (choice === 'View Salary Liability by Department') {
+            viewCost(choice);
+            nextAction();
+        } else {
+            // close program function
+        }
+
     })
+}
+
+function viewDepartments(allDepartments) {
+    // SQL lookup
+}
+
+function addDepartment() {
+
+}
+
+function deleteDepartment() {
+
+}
+
+function viewJobs() {
+
+}
+
+function addJob() {
+
+}
+
+function deleteJob() {
+
+}
+
+function viewEmployees() {
+
+}
+
+function addEmployee() {
+    
+}
+
+function updateEmployee() {
+    
+}
+
+function deleteEmployee() {
+    
+}
+
+function viewBman() {
+
+}
+
+function viewBdept() {
+
+}
+
+function viewCost() {
+
+}
+
+function nextAction() {
+    inquirer.prompt(another)
 }
 
 init();
