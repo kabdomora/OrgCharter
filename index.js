@@ -219,6 +219,21 @@ const uperson = [
     },
 ];
 
+const managers = [
+    {
+        type: 'confirm',
+        name: 'allmanagers',
+        message: 'You must have the employee ID of the manager to proceed. If you already have this select Yes to proceed, else go back and view managers first',
+        default: true
+    },
+    {
+        type: 'input',
+        name: 'managerID',
+        message: "What is the manager's employee ID?",
+        when: (confirm) => confirm.allmanagers === true
+    },
+];
+
 // JOIN Example
 // SELECT
 //   favorite_books.book_name AS name, book_prices.price AS price
@@ -266,8 +281,7 @@ function init() {
                 addEmployee(newper);
                 console.log(`${newper.first_name} ${newper.last_name} has been added to the list of current Employees`);
                 nextAction();
-            })
-            
+            })            
         } else if(choice === 'Update an Existing Employee') {
             updateEmployee(choice);
             nextAction();
@@ -275,8 +289,10 @@ function init() {
             deleteEmployee(choice);
             nextAction();
         } else if(choice === 'View Employees by Manager') {
-            viewBman(choice);
-            nextAction();
+            inquirer.prompt(managers)
+            .then(selected => {
+                viewBman(selected);
+            })
         } else if(choice === 'View Employees by Department') {
             viewBdept(choice);
             nextAction();
@@ -361,8 +377,11 @@ function deleteEmployee() {
     
 }
 
-function viewBman() {
-
+function viewBman(manager) {
+    connection.query(`SELECT people.id AS employee_id, people.first_name AS first, people.last_name AS last, jobs.title AS title, jobs.salary AS annual_rate, departments.dept_name AS home_department FROM people JOIN jobs ON people.title_pay = jobs.id JOIN departments on people.dept_id = departments.id WHERE manager_id = ${manager.managerID};`, function (err, empInfo) {
+        console.table(empInfo);
+        nextAction();
+    })
 }
 
 function viewBdept() {
