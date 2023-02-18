@@ -318,8 +318,10 @@ function init() {
                 viewBdept(selected);
             })
         } else if(choice === 'View Salary Liability by Department') {
-            viewCost(choice);
-            nextAction();
+            inquirer.prompt(departments)
+            .then(selected => {
+                viewCost(selected);
+            })
         } 
     })
 }
@@ -355,7 +357,7 @@ function deleteJob() {
 }
 
 function viewManagers() {
-    connection.query(`SELECT people.manager_id AS manager_id, CONCAT(manager.first_name,' ',manager.last_name) AS manager FROM people JOIN people manager on manager.id = people.manager_id;`, function (err, empInfo) {
+    connection.query(`SELECT people.manager_id AS manager_id, CONCAT(manager.first_name,' ',manager.last_name) AS manager FROM people JOIN people manager on manager.id = people.manager_id GROUP BY people.manager_id;`, function (err, empInfo) {
         console.table(empInfo);
         nextAction();
     })
@@ -417,7 +419,10 @@ function viewBdept(department) {
 }
 
 function viewCost() {
-
+    connection.query(`SELECT SUM(jobs.salary) AS total_salaries, departments.dept_name FROM jobs JOIN departments ON jobs.dept = departments.id GROUP BY jobs.dept;`, function (err, salInfo) {
+        console.table(salInfo);
+        nextAction();
+    })
 }
 
 function nextAction() {
