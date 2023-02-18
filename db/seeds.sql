@@ -32,15 +32,16 @@ VALUES
     ('Filing Clerk', 37000, 7),
     ('CEO', 2000000, 7);
 
-INSERT INTO people (first_name, last_name, title_pay, dept_id)
+INSERT INTO people (first_name, last_name, title_pay, manager_id, dept_id)
 VALUES
-    ('Bill', 'Stein', 2, 1),
-    ('Susie', 'Edwards', 15, 5),
-    ('Sarah', 'Jackson', 5, 2),
-    ('Clinton', 'McMurphy', 4, 2),
-    ('Fred', 'Astair', 12, 4),
-    ('Jack', 'Ripper', 6, 2),
-    ('Paul', 'Smee', 8, 3),
-    ('Laura', 'Engles', 9, 3),
-    ('Tara', 'Pinkerton', 7, 3),
-    ('Katrina', 'Tournay', 21, 7);
+    ('Bill', 'Stein', 2, NULL, 1),
+    ('Susie', 'Edwards', 15, NULL, 5),
+    ('Fred', 'Astair', 12, NULL, 4),    
+    ('Katrina', 'Tournay', 21, NULL, 7),
+    ('Laura', 'Engles', 9, 4, 3),
+    ('Jack', 'Ripper', 6, NULL, 2),
+    ('Sarah', 'Jackson', 5, 6, 2),
+    ('Clinton', 'McMurphy', 4, 7, 2),  
+    ('Paul', 'Smee', 8, 4, 3),    
+    ('Tara', 'Pinkerton', 7, 9, 3);
+    

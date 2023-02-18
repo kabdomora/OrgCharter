@@ -235,8 +235,7 @@ function init() {
         console.log(chosen.action);
         let choice = chosen.action;
         if(choice === 'View all Departments') {
-            viewDepartments();
-            nextAction();
+            viewDepartments()
         } else if(choice === 'Add a New Department') {
             inquirer.prompt(department)
             .then(newdep => {
@@ -248,8 +247,7 @@ function init() {
             deleteDepartment(choice);
             nextAction();
         } else if(choice === 'View all Positions') {
-            viewJobs(choice);
-            nextAction();
+            viewJobs()
         } else if(choice === 'Add a New Position') {
             inquirer.prompt(job)
             .then(newjob => {
@@ -261,8 +259,7 @@ function init() {
             deleteJob(choice);
             nextAction();
         } else if(choice === 'View all Employees') {
-            viewEmployees(choice);
-            nextAction();
+            viewEmployees()
         } else if(choice === 'Add a New Employee') {
             inquirer.prompt(person)
             .then(newper => {
@@ -293,9 +290,11 @@ function init() {
     })
 }
 
-function viewDepartments() {
-    let currentDepts = connection.query('SELECT * FROM departments');
-    console.log(currentDepts)
+function viewDepartments() {    
+    connection.query(`SELECT id AS department_id, dept_name AS department_name FROM departments;`, function (err, deptInfo) {
+        console.table(deptInfo);
+        nextAction();
+    })
 }
 
 function addDepartment(newdep) {
@@ -307,7 +306,10 @@ function deleteDepartment() {
 }
 
 function viewJobs() {
-
+    connection.query(`SELECT jobs.id AS title_code, jobs.title AS title, jobs.salary AS compensation, departments.dept_name AS home_department FROM jobs JOIN departments ON jobs.dept = departments.id;`, function (err, jobInfo) {
+        console.table(jobInfo);
+        nextAction();
+    })
 }
 
 function addJob(newjob) {
@@ -319,7 +321,10 @@ function deleteJob() {
 }
 
 function viewEmployees() {
-
+    connection.query(`SELECT people.id AS employee_id, people.first_name AS first, people.last_name AS last, jobs.title AS title, CONCAT(manager.first_name,' ',manager.last_name) AS manager, jobs.salary AS annual_rate, departments.dept_name AS home_department FROM people JOIN jobs ON people.title_pay = jobs.id JOIN departments on people.dept_id = departments.id LEFT JOIN people manager on manager.id = people.manager_id;`, function (err, empInfo) {
+        console.table(empInfo);
+        nextAction();
+    })
 }
 
 function addEmployee(newper) {
@@ -372,7 +377,7 @@ function nextAction() {
     inquirer.prompt(another)
     .then(next => {
         if(next.next_action === true) {
-            inquirer.prompt(action)
+            init();
         } else {
             console.log('Goodbye!')
         }

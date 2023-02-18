@@ -26,8 +26,13 @@
   },
   "homepage": "https://github.com/kabdomora/OrgCharter#readme",
   "dependencies": {
+    "body-parser": "^1.20.1",
     "console.table": "^0.10.0",
+    "express-flash": "^0.0.2",
+    "express-session": "^1.17.3",
     "inquirer": "^8.2.4",
-    "mysql2": "^3.1.2"
+    "mysql": "^2.18.1",
+    "mysql2": "^3.1.2",
+    "nodemon": "^2.0.20"
   }
 }
