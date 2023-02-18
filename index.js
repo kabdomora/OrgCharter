@@ -50,6 +50,8 @@ const action = [
             // launch job array prompt
             'Delete an Existing Position',
             // launch jobless array prompt + okdelete array prompt
+            'View all Managers',
+            // no additional prompt needed. SQL command
             'View all Employees',
             // no additional prompt needed. SQL command
             'Add a New Employee',
@@ -92,6 +94,21 @@ const department = [
         type: 'input',
         name: 'dept_name',
         message: 'Enter the Department Name'
+    },
+];
+
+const departments = [
+    {
+        type: 'confirm',
+        name: 'alldepts',
+        message: 'You must have the department code (as opposed to name) to proceed. If you already have this select Yes to proceed, else go back and view departments first',
+        default: true
+    },
+    {
+        type: 'input',
+        name: 'managerID',
+        message: "What is the manager's employee ID?",
+        when: (confirm) => confirm.allmanagers === true
     },
 ];
 
@@ -273,6 +290,8 @@ function init() {
         } else if(choice === 'Delete an Existing Position') {
             deleteJob(choice);
             nextAction();
+        } else if(choice === 'View all Managers') {
+            viewManagers()
         } else if(choice === 'View all Employees') {
             viewEmployees()
         } else if(choice === 'Add a New Employee') {
@@ -294,15 +313,14 @@ function init() {
                 viewBman(selected);
             })
         } else if(choice === 'View Employees by Department') {
-            viewBdept(choice);
-            nextAction();
+            inquirer.prompt(deptPrompt)
+            .then(selected => {
+                viewBdept(selected);
+            })
         } else if(choice === 'View Salary Liability by Department') {
             viewCost(choice);
             nextAction();
-        } else {
-            // close program function
-        }
-
+        } 
     })
 }
 
@@ -334,6 +352,13 @@ function addJob(newjob) {
 
 function deleteJob() {
 
+}
+
+function viewManagers() {
+    connection.query(`SELECT people.manager_id AS manager_id, CONCAT(manager.first_name,' ',manager.last_name) AS manager FROM people JOIN people manager on manager.id = people.manager_id;`, function (err, empInfo) {
+        console.table(empInfo);
+        nextAction();
+    })
 }
 
 function viewEmployees() {
@@ -384,8 +409,11 @@ function viewBman(manager) {
     })
 }
 
-function viewBdept() {
-
+function viewBdept(department) {
+    connection.query(`SELECT people.id AS employee_id, people.first_name AS first, people.last_name AS last, jobs.title AS title, jobs.salary AS annual_rate FROM people JOIN jobs ON people.title_pay = jobs.id WHERE dept_id = ${department.deptID};`, function (err, empInfo) {
+        console.table(empInfo);
+        nextAction();
+    })
 }
 
 function viewCost() {
