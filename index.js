@@ -106,9 +106,9 @@ const departments = [
     },
     {
         type: 'input',
-        name: 'managerID',
-        message: "What is the manager's employee ID?",
-        when: (confirm) => confirm.allmanagers === true
+        name: 'deptID',
+        message: "What is the department code?",
+        when: (confirm) => confirm.alldepts === true
     },
 ];
 
@@ -313,7 +313,7 @@ function init() {
                 viewBman(selected);
             })
         } else if(choice === 'View Employees by Department') {
-            inquirer.prompt(deptPrompt)
+            inquirer.prompt(departments)
             .then(selected => {
                 viewBdept(selected);
             })
@@ -325,7 +325,7 @@ function init() {
 }
 
 function viewDepartments() {    
-    connection.query(`SELECT id AS department_id, dept_name AS department_name FROM departments;`, function (err, deptInfo) {
+    connection.query(`SELECT id AS department_code, dept_name AS department_name FROM departments;`, function (err, deptInfo) {
         console.table(deptInfo);
         nextAction();
     })
