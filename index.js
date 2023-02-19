@@ -19,17 +19,15 @@ const cTable = require('console.table');
 //   foo   10
 //   bar   20
 
-const selectManager = 'Select the **EMPLOYEE ID** of the assigned manager. Refer to the table of employees for assistance.';
-
-const deptStore = [
+let deptStore = [
     // query already stored departments. output comma delimeted list of names
 ];
 
-const jobStore = [
+let storeJob = [
     // query already stored jobs. output comma delimeted list of titles
 ];
 
-const personStore = [
+let personStore = [
     // query already stored persons. output comma delimeted list of employee-ids
 ];
 
@@ -115,8 +113,8 @@ const departments = [
 const job = [
     {
         type: 'input',
-        name: 'title',
-        message: 'What role?'
+        name: 'dept',
+        message: `What is the department code for this role's Home Department?`
     },
     {
         type: 'input',
@@ -124,12 +122,9 @@ const job = [
         message: 'How much do individuals in thie role earn?'
     },
     {
-        type: 'rawlist',
-        name: 'dept',
-        choices: [
-            // resource Dept list from already stored departments
-        ],
-        message: 'What dept does this role belong to?'
+        type: 'input',
+        name: 'title',
+        message: `What is the new title?`
 
     },
 ];
@@ -145,6 +140,16 @@ const jobless = [
 const person = [
     {
         type: 'input',
+        name: 'dept',
+        message: `What is the Department Code for this Employee's Home Department? `
+    },
+    {
+        type: 'input',
+        name: 'role',
+        message: `What is the title code for this Employee's position?`
+    },
+    {
+        type: 'input',
         name: 'first_name',
         message: 'Enter First Name'
     },
@@ -154,29 +159,25 @@ const person = [
         message: 'Enter Last Name'
     },
     {
-        type: 'rawlist',
-        name: 'role',
-        choices: [jobStore],
-        message: 'What is their role?'
-    },
-    {
-        type: 'rawlist',
-        name: 'dept',
-        choices: [deptStore],
-        message: 'What dept does this role belong to?'
-    },
-    {
         type: 'confirm',
         name: 'has_manager',
         message: 'Does this person have an assigned manager?',
         default: 'true'
     },
     {
-        type: 'rawlist',
+        type: 'input',
         name: 'manager',
-        choices: [personStore],
-        messages: selectManager,
+        messages: 'Select the **EMPLOYEE ID** of the assigned manager. Refer to the table of managers for assistance.',
         when: (confirm) => confirm.has_manager === true
+    },
+];
+
+const personSure = [
+    {
+        type: 'confirm',
+        name: 'person_proceed',
+        message: `You must have ready the Department Code and Title Code for the new Employee, as well as Manager's Employee ID if a Manager has already been assigned. If you have these, select Yes to proceed. Else go back and view these details first.`,
+        default: 'true'
     },
 ];
 
@@ -231,7 +232,7 @@ const uperson = [
         type: 'rawlist',
         name: 'update_manager',
         choices: [personStore],
-        message: selectManager,
+        message: 'Select the **EMPLOYEE ID** of the assigned manager. Refer to the table of managers for assistance.',
         when: (rawlist) => rawlist.update_choice === 'manager'
     },
 ];
@@ -250,16 +251,6 @@ const managers = [
         when: (confirm) => confirm.allmanagers === true
     },
 ];
-
-// JOIN Example
-// SELECT
-//   favorite_books.book_name AS name, book_prices.price AS price
-// FROM favorite_books
-// JOIN book_prices ON favorite_books.book_price = book_prices.id;
-
-// translated: find the book_name and rename the column name ALSO the price and rename it price
-// from the table favorite_books
-// to pull in the price value instead JOIN the tables book_prices at the related field book_price by using the id saved for the lookup
 
 function init() {
     inquirer.prompt(action)
@@ -281,6 +272,7 @@ function init() {
         } else if(choice === 'View all Positions') {
             viewJobs()
         } else if(choice === 'Add a New Position') {
+            depStore();
             inquirer.prompt(job)
             .then(newjob => {
                 addJob(newjob);
@@ -295,12 +287,20 @@ function init() {
         } else if(choice === 'View all Employees') {
             viewEmployees()
         } else if(choice === 'Add a New Employee') {
-            inquirer.prompt(person)
-            .then(newper => {
-                addEmployee(newper);
-                console.log(`${newper.first_name} ${newper.last_name} has been added to the list of current Employees`);
-                nextAction();
-            })            
+            inquirer.prompt(personSure)
+            .then(confirm => {
+                if(confirm.person_proceed === true) {
+                    inquirer.prompt(person)
+                    .then(newper => {
+                        addEmployee(newper);
+                        console.log(`${newper.first_name} ${newper.last_name} has been added to the list of current Employees`);
+                        nextAction();
+                    }) 
+                } else {
+                    nextAction();
+                }               
+            })
+           
         } else if(choice === 'Update an Existing Employee') {
             updateEmployee(choice);
             nextAction();
@@ -333,6 +333,18 @@ function viewDepartments() {
     })
 }
 
+function depStore() {    
+    connection.query(`SELECT id AS department_code, dept_name AS department_name FROM departments;`, function (err, deptInfo) {
+        deptStore = [];
+        deptInfo.forEach((deptInfo, index) => {
+            if (index >= 0 ) {                
+                deptStore.push(`${deptInfo.department_name} | Code# ${deptInfo.department_code}`);
+            }
+        })
+        console.log(deptStore);
+    })
+}
+
 function addDepartment(newdep) {
     connection.query(`INSERT INTO departments (dept_name) VALUES ("${newdep}")`)
 }
@@ -346,6 +358,18 @@ function viewJobs() {
         console.table(jobInfo);
         nextAction();
     })
+}
+
+function jobStore() {
+    connection.query(`SELECT jobs.id AS title_code, jobs.title AS title, jobs.salary AS compensation, departments.dept_name AS home_department FROM jobs JOIN departments ON jobs.dept = departments.id;`, function (err, jobInfo) {
+        storeJob = [];
+        jobInfo.forEach((jobInfo, index) => {
+            if (index >= 0 ) {                
+                storeJob.push(`${jobInfo.title} | Code# ${jobInfo.title_code}`);
+            }
+        })
+        console.log(storeJob);
+    })    
 }
 
 function addJob(newjob) {
@@ -374,23 +398,13 @@ function addEmployee(newper) {
     let first = newper.first_name;
     let last = newper.last_name;
     let manager = newper.manager;
-    let role = newper.title_pay;
-    let dept = newper.dept_id;
+    let role = newper.role;
+    let dept = newper.dept;
 
-    if(manager && role && dept) {
-        connection.query(`INSERT INTO people (first_name, last_name, manager, title_pay, dept_id) VALUES ("${first}", "${last}", ${manager}, ${role}, ${dept})`)
-    } else if(manager && role) {
-        connection.query(`INSERT INTO people (first_name, last_name, manager, title_pay) VALUES ("${first}", "${last}", ${manager}, ${role})`)
-    } else if(manager && dept) {
-        connection.query(`INSERT INTO people (first_name, last_name, manager, dept_id) VALUES ("${first}", "${last}", ${manager}, ${dept})`)
-    } else if(role && dept) {
-        connection.query(`INSERT INTO people (first_name, last_name, title_pay, dept_id) VALUES ("${first}", "${last}", ${role}, ${dept})`)
-    } else if(role) {
-        connection.query(`INSERT INTO people (first_name, last_name, manager, title_pay, dept_id) VALUES ("${first}", "${last}", ${role})`)
-    } else if(manager) {
-        connection.query(`INSERT INTO people (first_name, last_name, manager, title_pay, dept_id) VALUES ("${first}", "${last}", ${manager})`)
-    } else if(dept) {
-        connection.query(`INSERT INTO people (first_name, last_name, manager, title_pay, dept_id) VALUES ("${first}", "${last}", ${dept})`)
+    if(manager) {
+        connection.query(`INSERT INTO people (first_name, last_name, manager_id, title_pay, dept_id) VALUES ("${first}", "${last}", ${manager}, ${role}, ${dept});`)
+    } else if(!manager) {
+        connection.query(`INSERT INTO people (first_name, last_name, title_pay, dept_id) VALUES ("${first}", "${last}", ${role}, ${dept});`)
     } else {
         console.log("Something went wrong, try again!")
     }
