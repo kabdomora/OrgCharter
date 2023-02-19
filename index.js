@@ -136,7 +136,7 @@ const job = [
         message: `What is the Title Name for this new role?`,
         validate: (answer) => {
             if(answer.trim() === "") {
-                return "Employee First Name is a mandatory field. Please enter the Employee First Name"
+                return "Title Name is a mandatory field. Please enter the Title Name"
             } return true;
         },
 
@@ -412,10 +412,7 @@ function init() {
                 viewBdept(selected);
             })
         } else if(choice === 'View Salary Liability by Department') {
-            inquirer.prompt(departments)
-            .then(selected => {
-                viewCost(selected);
-            })
+                viewCost()
         } 
     })
 }
@@ -514,6 +511,10 @@ function deleteEmployee() {
 
 function viewBman(manager) {
     connection.query(`SELECT people.id AS employee_id, people.first_name AS first, people.last_name AS last, jobs.title AS title, jobs.salary AS annual_rate, departments.dept_name AS home_department FROM people JOIN jobs ON people.title_pay = jobs.id JOIN departments on people.dept_id = departments.id WHERE manager_id = ${manager.managerID};`, function (err, empInfo) {
+        if(empInfo.length <= 0) {
+            console.log('This Employee either does not exist or does not manage any other Employees');
+        } 
+        
         console.table(empInfo);
         nextAction();
     })
@@ -521,13 +522,17 @@ function viewBman(manager) {
 
 function viewBdept(department) {
     connection.query(`SELECT people.id AS employee_id, people.first_name AS first, people.last_name AS last, jobs.title AS title, jobs.salary AS annual_rate FROM people JOIN jobs ON people.title_pay = jobs.id WHERE dept_id = ${department.deptID};`, function (err, empInfo) {
+        if(empInfo.length <= 0) {
+            console.log('This Department either does not exist or currently does not have any Employees');
+        }
+        
         console.table(empInfo);
         nextAction();
     })
 }
 
 function viewCost() {
-    connection.query(`SELECT SUM(jobs.salary) AS total_salaries, departments.dept_name FROM jobs JOIN departments ON jobs.dept = departments.id GROUP BY jobs.dept;`, function (err, salInfo) {
+    connection.query(`SELECT SUM(jobs.salary) AS total_salaries, departments.dept_name FROM jobs JOIN departments ON jobs.dept = departments.id GROUP BY jobs.dept;`, function (err, salInfo) {        
         console.table(salInfo);
         nextAction();
     })
