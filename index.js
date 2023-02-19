@@ -361,8 +361,17 @@ function init() {
                 nextAction();
             })
         } else if(choice === 'Delete an Existing Department') {
-            deleteDepartment(choice);
-            nextAction();
+            inquirer.prompt(okdelete)
+            .then(confirm => {
+                if(confirm.delete === true) {
+                    inquirer.prompt(departments)
+                    .then(depDelete => {
+                        deleteDepartment(depDelete.deptID);
+                        console.log(`Department with Dept. Code ${depDelete.deptID} has been deleted`);
+                        nextAction();
+                    })
+                }
+            })
         } else if(choice === 'View all Positions') {
             viewJobs()
         } else if(choice === 'Add a New Position') {
@@ -440,8 +449,8 @@ function addDepartment(newdep) {
     connection.query(`INSERT INTO departments (dept_name) VALUES ("${newdep}")`)
 }
 
-function deleteDepartment() {
-
+function deleteDepartment(depDelete) {
+    connection.query(`DELETE FROM departments WHERE id = ${depDelete};`)
 }
 
 function viewJobs() {
@@ -467,7 +476,7 @@ function addJob(newjob) {
     connection.query(`INSERT INTO jobs (title, salary, dept) VALUES ("${newjob.title}", ${newjob.salary}, ${newjob.dept})`)
 }
 
-function deleteJob() {
+function deleteJob(jobDelete) {
 
 }
 
@@ -505,7 +514,7 @@ function updateEmployee() {
     
 }
 
-function deleteEmployee() {
+function deleteEmployee(empDelete) {
     
 }
 
