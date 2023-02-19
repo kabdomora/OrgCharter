@@ -141,22 +141,46 @@ const person = [
     {
         type: 'input',
         name: 'dept',
-        message: `What is the Department Code for this Employee's Home Department? `
+        message: `What is the Department Code for this Employee's Home Department? `,
+        validate: (answer) => {
+            if (isNaN(answer)) {
+                return "Department Code is a numeric field. Please enter the numeric Department Code"
+            } else if(answer.trim() === "") {
+                return "Department Code is a mandatory field. Please enter the Department Code"
+            } return true;
+        },
     },
     {
         type: 'input',
         name: 'role',
-        message: `What is the title code for this Employee's position?`
+        message: `What is the title code for this Employee's position?`,
+        validate: (answer) => {
+            if (isNaN(answer)) {
+                return "Title Code is a numeric field. Please enter the numeric Title Code"
+            } else if(answer.trim() === "") {
+                return "Title Code is a mandatory field. Please enter the Title Code"
+            } return true;
+        },
     },
     {
         type: 'input',
         name: 'first_name',
-        message: 'Enter First Name'
+        message: 'Enter First Name',
+        validate: (answer) => {
+            if(answer.trim() === "") {
+                return "Employee First Name is a mandatory field. Please enter the Employee First Name"
+            } return true;
+        },
     },
     {
         type: 'input',
         name: 'last_name',
-        message: 'Enter Last Name'
+        message: 'Enter Last Name',
+        validate: (answer) => {
+            if(answer.trim() === "") {
+                return "Employee Last Name is a mandatory field. Please enter the Employee Last Name"
+            } return true;
+        },
     },
     {
         type: 'confirm',
@@ -168,7 +192,14 @@ const person = [
         type: 'input',
         name: 'manager',
         messages: 'Select the **EMPLOYEE ID** of the assigned manager. Refer to the table of managers for assistance.',
-        when: (confirm) => confirm.has_manager === true
+        when: (confirm) => confirm.has_manager === true,
+        validate: (answer) => {
+            if (isNaN(answer)) {
+                return "Manager ID is a numeric field. Please enter the numeric Manager ID"
+            } else if(answer.trim() === "") {
+                return "Manager ID is a mandatory field. Please enter the Manager ID"
+            } return true;
+        },
     },
 ];
 
