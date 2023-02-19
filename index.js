@@ -212,7 +212,7 @@ const person = [
     {
         type: 'input',
         name: 'manager',
-        messages: 'Enter the **EMPLOYEE ID** of the assigned manager. Refer to the table of managers for assistance.',
+        message: 'Enter the **EMPLOYEE ID** of the assigned manager. Refer to the table of managers for assistance.',
         when: (confirm) => confirm.has_manager === true,
         validate: (answer) => {
             if (isNaN(answer)) {
@@ -260,6 +260,19 @@ const uperson = [
             'manager'
         ],
         message: 'What field would you like to update?'
+    },
+    {
+        type: 'input',
+        name: 'empl_id',
+        message: 'What is the Employee ID for this person?',
+        validate: (answer) => {
+            if (isNaN(answer)) {
+                return "Employee ID is a numeric field. Please enter the numeric Employee ID"
+            } else if(answer.trim() === "") {
+                return "Employee ID is a mandatory field. Please enter the Employee ID"
+            } return true;
+        },
+
     },
     {
         type: 'input',
@@ -311,8 +324,8 @@ const uperson = [
     },
     {
         type: 'input',
-        name: 'manager',
-        messages: 'Enter the **EMPLOYEE ID** of the new assigned manager. Refer to the table of managers for assistance.',
+        name: 'update_manager',
+        message: 'Enter the **EMPLOYEE ID** of the new assigned manager. Refer to the table of managers for assistance.',
         when: (rawlist) => rawlist.update_choice === 'manager',
         validate: (answer) => {
             if (isNaN(answer)) {
@@ -370,6 +383,8 @@ function init() {
                         console.log(`Department with Dept. Code ${depDelete.deptID} has been deleted`);
                         nextAction();
                     })
+                } else if(confirm.delete === false) {
+                    nextAction();
                 }
             })
         } else if(choice === 'View all Positions') {
@@ -383,8 +398,19 @@ function init() {
                 nextAction();
             })
         } else if(choice === 'Delete an Existing Position') {
-            deleteJob(choice);
-            nextAction();
+            inquirer.prompt(okdelete)
+            .then(confirm => {
+                if(confirm.delete === true) {
+                    inquirer.prompt(jobless)
+                    .then(jobDelete => {
+                        deleteJob(jobDelete.titleGone);
+                        console.log(`Role with Title Code ${jobDelete.titleGone} has been deleted`);
+                        nextAction();
+                    })
+                } else if(confirm.delete === false) {
+                    nextAction();
+                }
+            })
         } else if(choice === 'View all Managers') {
             viewManagers()
         } else if(choice === 'View all Employees') {
@@ -399,17 +425,31 @@ function init() {
                         console.log(`${newper.first_name} ${newper.last_name} has been added to the list of current Employees`);
                         nextAction();
                     }) 
-                } else {
+                } else if(confirm.delete === false) {
                     nextAction();
-                }               
+                }             
             })
            
         } else if(choice === 'Update an Existing Employee') {
-            updateEmployee(choice);
-            nextAction();
+            inquirer.prompt(uperson)
+            .then(field => {
+                updateEmployee(field);
+                nextAction();
+            })
         } else if(choice === 'Delete an Existing Employee') {
-            deleteEmployee(choice);
-            nextAction();
+            inquirer.prompt(okdelete)
+            .then(confirm => {
+                if(confirm.delete === true) {
+                    inquirer.prompt(personless)
+                    .then(empDelete => {
+                        deleteEmployee(empDelete.emp_id);
+                        console.log(`Employee with ID# ${empDelete.emp_id} has been deleted`);
+                        nextAction();
+                    })
+                } else if(confirm.delete === false) {
+                    nextAction();
+                }
+            })
         } else if(choice === 'View Employees by Manager') {
             inquirer.prompt(managers)
             .then(selected => {
@@ -471,13 +511,14 @@ function jobStore() {
         console.log(storeJob);
     })    
 }
+// future functionality - help to populate storejob object for dynamig id reference.
 
 function addJob(newjob) {
     connection.query(`INSERT INTO jobs (title, salary, dept) VALUES ("${newjob.title}", ${newjob.salary}, ${newjob.dept})`)
 }
 
 function deleteJob(jobDelete) {
-
+    connection.query(`DELETE FROM jobs WHERE id = ${jobDelete};`)
 }
 
 function viewManagers() {
@@ -510,12 +551,24 @@ function addEmployee(newper) {
     }
 }
 
-function updateEmployee() {
-    
+function updateEmployee(field) {
+    if(field.update_choice === 'first_name') {
+        connection.query(`UPDATE people SET first_name = '${field.update_first}' WHERE id=${field.empl_id};`)
+    }  else if(field.update_choice === 'last_name') {
+        connection.query(`UPDATE people SET last_name = '${field.update_last}' WHERE id=${field.empl_id};`)
+    }  else if(field.update_choice === 'role') {
+        connection.query(`UPDATE people SET title_pay = ${field.update_role} WHERE id=${field.empl_id};`)
+    } else if(field.update_choice === 'dept') {
+        connection.query(`UPDATE people SET dept_id = ${field.update_dept} WHERE id=${field.empl_id};`)
+    } else if(field.update_choice === 'manager') {
+        connection.query(`UPDATE people SET manager_id = ${field.update_manager} WHERE id=${field.empl_id};`)
+    } else {
+        console.log(`Something went wrong. Try again!`);
+    }
 }
 
 function deleteEmployee(empDelete) {
-    
+    connection.query(`DELETE FROM people WHERE id = ${empDelete};`)    
 }
 
 function viewBman(manager) {
