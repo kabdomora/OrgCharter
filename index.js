@@ -2,23 +2,6 @@ const inquirer = require('inquirer');
 const connection = require('./db/connection');
 const cTable = require('console.table');
 
-/////// EXAMPLE ///////
-// console.table([
-//     {
-//       name: 'foo',
-//       age: 10
-//     }, {
-//       name: 'bar',
-//       age: 20
-//     }
-//   ]);
-  
-//   // prints
-//   name  age
-//   ----  ---
-//   foo   10
-//   bar   20
-
 let deptStore = [
     // query already stored departments. output comma delimeted list of names
 ];
@@ -91,7 +74,12 @@ const department = [
     {
         type: 'input',
         name: 'dept_name',
-        message: 'Enter the Department Name'
+        message: 'Enter the Department Name',
+        validate: (answer) => {
+            if(answer.trim() === "") {
+                return "Department Name is a mandatory field. Please enter the Department Name"
+            } return true;
+        },
     },
 ];
 
@@ -106,7 +94,14 @@ const departments = [
         type: 'input',
         name: 'deptID',
         message: "What is the department code?",
-        when: (confirm) => confirm.alldepts === true
+        when: (confirm) => confirm.alldepts === true,
+        validate: (answer) => {
+            if (isNaN(answer)) {
+                return "Department Code is a numeric field. Please enter the numeric Department Code"
+            } else if(answer.trim() === "") {
+                return "Department Code is a mandatory field. Please enter the Department Code"
+            } return true;
+        },
     },
 ];
 
@@ -114,17 +109,36 @@ const job = [
     {
         type: 'input',
         name: 'dept',
-        message: `What is the department code for this role's Home Department?`
+        message: `What is the department code for this role's Home Department?`,
+        validate: (answer) => {
+            if (isNaN(answer)) {
+                return "Department Code is a numeric field. Please enter the numeric Department Code"
+            } else if(answer.trim() === "") {
+                return "Department Code is a mandatory field. Please enter the Department Code"
+            } return true;
+        },
     },
     {
         type: 'input',
         name: 'salary',
-        message: 'How much do individuals in thie role earn?'
+        message: 'How much do individuals in thie role earn?',
+        validate: (answer) => {
+            if (isNaN(answer)) {
+                return "Salary is a numeric field. Please enter the numeric Salary"
+            } else if(answer.trim() === "") {
+                return "Salary is a mandatory field. Please enter the Salary"
+            } return true;
+        },
     },
     {
         type: 'input',
         name: 'title',
-        message: `What is the new title?`
+        message: `What is the Title Name for this new role?`,
+        validate: (answer) => {
+            if(answer.trim() === "") {
+                return "Employee First Name is a mandatory field. Please enter the Employee First Name"
+            } return true;
+        },
 
     },
 ];
@@ -132,8 +146,15 @@ const job = [
 const jobless = [
     {
         type: 'input',
-        name: 'title',
-        message: 'What role is no longer in use?'
+        name: 'titleGone',
+        message: 'Enter the Title Code for the role that should be eliminated.',
+        validate: (answer) => {
+            if (isNaN(answer)) {
+                return "Title Code is a numeric field. Please enter the numeric Title Code"
+            } else if(answer.trim() === "") {
+                return "Title Code is a mandatory field. Please enter the Title Code"
+            } return true;
+        },
     },
 ];
 
@@ -191,7 +212,7 @@ const person = [
     {
         type: 'input',
         name: 'manager',
-        messages: 'Select the **EMPLOYEE ID** of the assigned manager. Refer to the table of managers for assistance.',
+        messages: 'Enter the **EMPLOYEE ID** of the assigned manager. Refer to the table of managers for assistance.',
         when: (confirm) => confirm.has_manager === true,
         validate: (answer) => {
             if (isNaN(answer)) {
@@ -216,7 +237,14 @@ const personless = [
     {
         type: 'input',
         name: 'emp_id',
-        message: 'Enter the employee ID for the person that should be terminated.'
+        message: 'Enter the employee ID for the person that should be terminated.',
+        validate: (answer) => {
+            if (isNaN(answer)) {
+                return "Employee ID is a numeric field. Please enter the numeric Employee ID"
+            } else if(answer.trim() === "") {
+                return "Employee ID is a mandatory field. Please enter the Employee ID"
+            } return true;
+        },
     },
 ];
 
@@ -237,34 +265,62 @@ const uperson = [
         type: 'input',
         name: 'update_first',
         message: 'Please provide the new First Name',
-        when: (rawlist) => rawlist.update_choice === 'first_name'
+        when: (rawlist) => rawlist.update_choice === 'first_name',
+        validate: (answer) => {
+            if(answer.trim() === "") {
+                return "Employee First Name is a mandatory field. Please enter the Employee First Name"
+            } return true;
+        },
     },
     {
         type: 'input',
         name: 'update_last',
         message: 'Please provide the new Last Name',
-        when: (rawlist) => rawlist.update_choice === 'last_name'
+        when: (rawlist) => rawlist.update_choice === 'last_name',
+        validate: (answer) => {
+            if(answer.trim() === "") {
+                return "Employee Last Name is a mandatory field. Please enter the Employee Last Name"
+            } return true;
+        },
     },
-    {
-        type: 'rawlist',
+    {        
+        type: 'input',
         name: 'update_role',
-        choices: [jobStore],
-        message: 'Please select the new role from the list of titles.',
-        when: (rawlist) => rawlist.update_choice === 'role'
+        message: `Enter the new Title Code for Employee's position?`,
+        when: (rawlist) => rawlist.update_choice === 'role',
+        validate: (answer) => {
+            if (isNaN(answer)) {
+                return "Title Code is a numeric field. Please enter the numeric Title Code"
+            } else if(answer.trim() === "") {
+                return "Title Code is a mandatory field. Please enter the Title Code"
+            } return true;
+        },
     },
     {
-        type: 'rawlist',
+        type: 'input',
         name: 'update_dept',
-        choices: [deptStore],
-        message: 'Please select the new Department from the list of Departments',
-        when: (rawlist) => rawlist.update_choice === 'dept'
+        message: `What is the Department Code for this Employee's *NEW* Home Department? `,
+        when: (rawlist) => rawlist.update_choice === 'dept',
+        validate: (answer) => {
+            if (isNaN(answer)) {
+                return "Department Code is a numeric field. Please enter the numeric Department Code"
+            } else if(answer.trim() === "") {
+                return "Department Code is a mandatory field. Please enter the Department Code"
+            } return true;
+        },
     },
     {
-        type: 'rawlist',
-        name: 'update_manager',
-        choices: [personStore],
-        message: 'Select the **EMPLOYEE ID** of the assigned manager. Refer to the table of managers for assistance.',
-        when: (rawlist) => rawlist.update_choice === 'manager'
+        type: 'input',
+        name: 'manager',
+        messages: 'Enter the **EMPLOYEE ID** of the new assigned manager. Refer to the table of managers for assistance.',
+        when: (rawlist) => rawlist.update_choice === 'manager',
+        validate: (answer) => {
+            if (isNaN(answer)) {
+                return "Manager ID is a numeric field. Please enter the numeric Manager ID"
+            } else if(answer.trim() === "") {
+                return "Manager ID is a mandatory field. Please enter the Manager ID"
+            } return true;
+        },
     },
 ];
 
@@ -279,7 +335,14 @@ const managers = [
         type: 'input',
         name: 'managerID',
         message: "What is the manager's employee ID?",
-        when: (confirm) => confirm.allmanagers === true
+        when: (confirm) => confirm.allmanagers === true,
+        validate: (answer) => {
+            if (isNaN(answer)) {
+                return "Manager ID is a numeric field. Please enter the numeric Manager ID"
+            } else if(answer.trim() === "") {
+                return "Manager ID is a mandatory field. Please enter the Manager ID"
+            } return true;
+        },
     },
 ];
 
