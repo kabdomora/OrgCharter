@@ -16,7 +16,7 @@
   ## How To Use
   * This application will create and maintain a database for employee profile details, department details and job details. Users can add new data at will and delete or update data according to IDs. 
 
-  [Refer to this walkthrough video for assistance]()
+  [Refer to this walkthrough video for assistance](https://drive.google.com/file/d/124Sr-wtRNNMfI9hsKwPIcYyuMbEzyL4I/view?usp=sharing)
 
   ## How To Contribute
   * Contact me on GitHub to contribute!
