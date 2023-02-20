@@ -370,8 +370,6 @@ function init() {
             inquirer.prompt(department)
             .then(newdep => {
                 addDepartment(newdep.dept_name);
-                console.log(`${newdep.dept_name} has been added to the Department list`);
-                nextAction();
             })
         } else if(choice === 'Delete an Existing Department') {
             inquirer.prompt(okdelete)
@@ -380,8 +378,6 @@ function init() {
                     inquirer.prompt(departments)
                     .then(depDelete => {
                         deleteDepartment(depDelete.deptID);
-                        console.log(`Department with Dept. Code ${depDelete.deptID} has been deleted`);
-                        nextAction();
                     })
                 } else if(confirm.delete === false) {
                     nextAction();
@@ -394,8 +390,6 @@ function init() {
             inquirer.prompt(job)
             .then(newjob => {
                 addJob(newjob);
-                console.log(`${newjob.title} has been added to the Jobs list`);
-                nextAction();
             })
         } else if(choice === 'Delete an Existing Position') {
             inquirer.prompt(okdelete)
@@ -404,8 +398,6 @@ function init() {
                     inquirer.prompt(jobless)
                     .then(jobDelete => {
                         deleteJob(jobDelete.titleGone);
-                        console.log(`Role with Title Code ${jobDelete.titleGone} has been deleted`);
-                        nextAction();
                     })
                 } else if(confirm.delete === false) {
                     nextAction();
@@ -422,10 +414,8 @@ function init() {
                     inquirer.prompt(person)
                     .then(newper => {
                         addEmployee(newper);
-                        console.log(`${newper.first_name} ${newper.last_name} has been added to the list of current Employees`);
-                        nextAction();
                     }) 
-                } else if(confirm.delete === false) {
+                } else if(confirm.person_proceed === false) {
                     nextAction();
                 }             
             })
@@ -434,7 +424,6 @@ function init() {
             inquirer.prompt(uperson)
             .then(field => {
                 updateEmployee(field);
-                nextAction();
             })
         } else if(choice === 'Delete an Existing Employee') {
             inquirer.prompt(okdelete)
@@ -443,8 +432,6 @@ function init() {
                     inquirer.prompt(personless)
                     .then(empDelete => {
                         deleteEmployee(empDelete.emp_id);
-                        console.log(`Employee with ID# ${empDelete.emp_id} has been deleted`);
-                        nextAction();
                     })
                 } else if(confirm.delete === false) {
                     nextAction();
@@ -453,12 +440,20 @@ function init() {
         } else if(choice === 'View Employees by Manager') {
             inquirer.prompt(managers)
             .then(selected => {
-                viewBman(selected);
+                if(selected.allmanagers === true) {
+                    viewBman(selected);
+                } else {
+                    nextAction();
+                }                
             })
         } else if(choice === 'View Employees by Department') {
             inquirer.prompt(departments)
             .then(selected => {
-                viewBdept(selected);
+                if(selected.alldepts === true) {
+                    viewBdept(selected);
+                } else {
+                    nextAction();
+                }                
             })
         } else if(choice === 'View Salary Liability by Department') {
                 viewCost()
@@ -467,9 +462,9 @@ function init() {
 }
 
 function viewDepartments() {    
-    connection.query(`SELECT id AS department_code, dept_name AS department_name FROM departments;`, function (err, deptInfo) {
+    connection.query(`SELECT id AS department_code, dept_name AS department_name FROM departments;`, async function (err, deptInfo) {
         console.table(deptInfo);
-        nextAction();
+        await nextAction();
     })
 }
 
@@ -486,17 +481,33 @@ function depStore() {
 }
 
 function addDepartment(newdep) {
-    connection.query(`INSERT INTO departments (dept_name) VALUES ("${newdep}")`)
+    connection.query(`INSERT INTO departments (dept_name) VALUES ("${newdep}")`, async function (err, depInfo) {
+        if(depInfo) {
+            console.log(`${newdep} has been added to the database!`)
+        } else {
+            console.log("Something went wrong. Please try again!")                             
+        }
+
+        await nextAction();
+    })
 }
 
 function deleteDepartment(depDelete) {
-    connection.query(`DELETE FROM departments WHERE id = ${depDelete};`)
+    connection.query(`DELETE FROM departments WHERE id = ${depDelete};`, async function (err, depInfo) {
+        if(depInfo) {
+            console.log(`If the Department with ID ${depDelete} existed: Department has been deleted!`)
+        } else {
+            console.log("Something went wrong. Please try again!")                             
+        }
+
+        await nextAction();
+    })
 }
 
 function viewJobs() {
-    connection.query(`SELECT jobs.id AS title_code, jobs.title AS title, jobs.salary AS compensation, departments.dept_name AS home_department FROM jobs JOIN departments ON jobs.dept = departments.id;`, function (err, jobInfo) {
+    connection.query(`SELECT jobs.id AS title_code, jobs.title AS title, jobs.salary AS compensation, departments.dept_name AS home_department FROM jobs JOIN departments ON jobs.dept = departments.id;`, async function (err, jobInfo) {
         console.table(jobInfo);
-        nextAction();
+        await nextAction();
     })
 }
 
@@ -514,24 +525,40 @@ function jobStore() {
 // future functionality - help to populate storejob object for dynamig id reference.
 
 function addJob(newjob) {
-    connection.query(`INSERT INTO jobs (title, salary, dept) VALUES ("${newjob.title}", ${newjob.salary}, ${newjob.dept})`)
+    connection.query(`INSERT INTO jobs (title, salary, dept) VALUES ("${newjob.title}", ${newjob.salary}, ${newjob.dept})`, async function (err, jobInfo) {
+        if(jobInfo) {
+            console.log(`Role has been added!`)
+        } else {
+            console.log("Something went wrong. Please try again!")                             
+        }
+
+        await nextAction();
+    })
 }
 
 function deleteJob(jobDelete) {
-    connection.query(`DELETE FROM jobs WHERE id = ${jobDelete};`)
+    connection.query(`DELETE FROM jobs WHERE id = ${jobDelete};`, async function (err, jobInfo) {
+        if(jobInfo) {
+            console.log(`If the title code ${jobDelete} existed: Role has been deleted!`)
+        } else {
+            console.log("Something went wrong. Please try again!")                             
+        }
+
+        await nextAction();
+    })
 }
 
 function viewManagers() {
-    connection.query(`SELECT people.manager_id AS manager_id, CONCAT(manager.first_name,' ',manager.last_name) AS manager FROM people JOIN people manager on manager.id = people.manager_id GROUP BY people.manager_id;`, function (err, empInfo) {
+    connection.query(`SELECT people.manager_id AS manager_id, CONCAT(manager.first_name,' ',manager.last_name) AS manager FROM people JOIN people manager on manager.id = people.manager_id GROUP BY people.manager_id;`, async function (err, empInfo) {
         console.table(empInfo);
-        nextAction();
+        await nextAction();
     })
 }
 
 function viewEmployees() {
-    connection.query(`SELECT people.id AS employee_id, people.first_name AS first, people.last_name AS last, jobs.title AS title, CONCAT(manager.first_name,' ',manager.last_name) AS manager, jobs.salary AS annual_rate, departments.dept_name AS home_department FROM people JOIN jobs ON people.title_pay = jobs.id JOIN departments on people.dept_id = departments.id LEFT JOIN people manager on manager.id = people.manager_id;`, function (err, empInfo) {
+    connection.query(`SELECT people.id AS employee_id, people.first_name AS first, people.last_name AS last, jobs.title AS title, CONCAT(manager.first_name,' ',manager.last_name) AS manager, jobs.salary AS annual_rate, departments.dept_name AS home_department FROM people JOIN jobs ON people.title_pay = jobs.id JOIN departments on people.dept_id = departments.id LEFT JOIN people manager on manager.id = people.manager_id;`, async function (err, empInfo) {
         console.table(empInfo);
-        nextAction();
+        await nextAction();
     })
 }
 
@@ -543,9 +570,25 @@ function addEmployee(newper) {
     let dept = newper.dept;
 
     if(manager) {
-        connection.query(`INSERT INTO people (first_name, last_name, manager_id, title_pay, dept_id) VALUES ("${first}", "${last}", ${manager}, ${role}, ${dept});`)
+        connection.query(`INSERT INTO people (first_name, last_name, manager_id, title_pay, dept_id) VALUES ("${first}", "${last}", ${manager}, ${role}, ${dept});`, async function (err, empInfo) {
+            if(empInfo) {
+                console.log(`${first} ${last} has been added to the list of employees`)
+            } else {
+                console.log("One or more of the provided IDs was invalid. Please try again!")                             
+            }
+
+            await nextAction();
+        })
     } else if(!manager) {
-        connection.query(`INSERT INTO people (first_name, last_name, title_pay, dept_id) VALUES ("${first}", "${last}", ${role}, ${dept});`)
+        connection.query(`INSERT INTO people (first_name, last_name, title_pay, dept_id) VALUES ("${first}", "${last}", ${role}, ${dept});`, async function (err, empInfo) {
+            if(empInfo) {
+                console.log(`${first} ${last} has been added to the list of employees`)
+            } else {
+                console.log("One or more of the provided IDs was invalid. Please try again!")                             
+            }
+
+            await nextAction();
+        })
     } else {
         console.log("Something went wrong, try again!")
     }
@@ -553,50 +596,100 @@ function addEmployee(newper) {
 
 function updateEmployee(field) {
     if(field.update_choice === 'first_name') {
-        connection.query(`UPDATE people SET first_name = '${field.update_first}' WHERE id=${field.empl_id};`)
+        connection.query(`UPDATE people SET first_name = '${field.update_first}' WHERE id=${field.empl_id};`, async function (err, empInfo) {
+            if(empInfo) {
+                console.log(`First name has been updated!`)
+            } else {
+                console.log("The provided Employee ID was invalid. Please try again!")                             
+            }
+
+            await nextAction();
+        })
     }  else if(field.update_choice === 'last_name') {
-        connection.query(`UPDATE people SET last_name = '${field.update_last}' WHERE id=${field.empl_id};`)
+        connection.query(`UPDATE people SET last_name = '${field.update_last}' WHERE id=${field.empl_id};`, async function (err, empInfo) {
+            if(empInfo) {
+                console.log(`Last name has been updated!`)
+            } else {
+                console.log("The provided Employee ID was invalid. Please try again!")                             
+            }
+
+            await nextAction();
+        })
     }  else if(field.update_choice === 'role') {
-        connection.query(`UPDATE people SET title_pay = ${field.update_role} WHERE id=${field.empl_id};`)
+        connection.query(`UPDATE people SET title_pay = ${field.update_role} WHERE id=${field.empl_id};`, async function (err, empInfo) {
+            if(empInfo) {
+                console.log(`Title Code has been updated!`)
+            } else {
+                console.log("One or more IDs provided were invalid. Please try again!")                             
+            }
+
+            await nextAction();
+        })
     } else if(field.update_choice === 'dept') {
-        connection.query(`UPDATE people SET dept_id = ${field.update_dept} WHERE id=${field.empl_id};`)
+        connection.query(`UPDATE people SET dept_id = ${field.update_dept} WHERE id=${field.empl_id};`, async function (err, empInfo) {
+            if(empInfo) {
+                console.log(`Home Department has been updated!`)
+            } else {
+                console.log("One or more IDs provided were invalid. Please try again!")                             
+            }
+
+            await nextAction();
+        })
     } else if(field.update_choice === 'manager') {
-        connection.query(`UPDATE people SET manager_id = ${field.update_manager} WHERE id=${field.empl_id};`)
+        connection.query(`UPDATE people SET manager_id = ${field.update_manager} WHERE id=${field.empl_id};`, async function (err, empInfo) {
+            if(empInfo) {
+                console.log(`Manager has been updated!`)
+            } else {
+                console.log("One or more IDs provided were invalid. Please try again!")                             
+            }
+
+            await nextAction();
+        })
     } else {
         console.log(`Something went wrong. Try again!`);
     }
 }
 
 function deleteEmployee(empDelete) {
-    connection.query(`DELETE FROM people WHERE id = ${empDelete};`)    
+    connection.query(`DELETE FROM people WHERE id = ${empDelete};`, async function (err, empInfo) {
+        if(empInfo) {
+            console.log(`If an Employee with id ${empDelete} existed: Employee has been deleted!`)
+        } else {
+            console.log("Something went wrong. Please try again!")                             
+        }
+
+        await nextAction();
+    })    
 }
 
 function viewBman(manager) {
-    connection.query(`SELECT people.id AS employee_id, people.first_name AS first, people.last_name AS last, jobs.title AS title, jobs.salary AS annual_rate, departments.dept_name AS home_department FROM people JOIN jobs ON people.title_pay = jobs.id JOIN departments on people.dept_id = departments.id WHERE manager_id = ${manager.managerID};`, function (err, empInfo) {
+    connection.query(`SELECT people.id AS employee_id, people.first_name AS first, people.last_name AS last, jobs.title AS title, jobs.salary AS annual_rate, departments.dept_name AS home_department FROM people JOIN jobs ON people.title_pay = jobs.id JOIN departments on people.dept_id = departments.id WHERE manager_id = ${manager.managerID};`, async function (err, empInfo) {
         if(empInfo.length <= 0) {
             console.log('This Employee either does not exist or does not manage any other Employees');
-        } 
+        } else {
+            console.table(empInfo);
+        }        
         
-        console.table(empInfo);
-        nextAction();
+        await nextAction();
     })
 }
 
 function viewBdept(department) {
-    connection.query(`SELECT people.id AS employee_id, people.first_name AS first, people.last_name AS last, jobs.title AS title, jobs.salary AS annual_rate FROM people JOIN jobs ON people.title_pay = jobs.id WHERE dept_id = ${department.deptID};`, function (err, empInfo) {
+    connection.query(`SELECT people.id AS employee_id, people.first_name AS first, people.last_name AS last, jobs.title AS title, jobs.salary AS annual_rate FROM people JOIN jobs ON people.title_pay = jobs.id WHERE dept_id = ${department.deptID};`, async function (err, empInfo) {
         if(empInfo.length <= 0) {
             console.log('This Department either does not exist or currently does not have any Employees');
-        }
+        } else {
+            console.table(empInfo);
+        }        
         
-        console.table(empInfo);
-        nextAction();
+        await nextAction();
     })
 }
 
 function viewCost() {
-    connection.query(`SELECT SUM(jobs.salary) AS total_salaries, departments.dept_name FROM jobs JOIN departments ON jobs.dept = departments.id GROUP BY jobs.dept;`, function (err, salInfo) {        
+    connection.query(`SELECT SUM(jobs.salary) AS total_salaries, departments.dept_name FROM jobs JOIN departments ON jobs.dept = departments.id GROUP BY jobs.dept;`, async function (err, salInfo) {        
         console.table(salInfo);
-        nextAction();
+        await nextAction();
     })
 }
 
